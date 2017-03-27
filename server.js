@@ -2,7 +2,7 @@ var WebSocketServer = require('ws').Server;
 
 var port = process.env.PORT || 3000;
 
-var wss = new WebSocketServer({port: PORT});
+var wss = new WebSocketServer({ port: port});
 
 var messages = [];
 wss.on('connection', function (ws) {
