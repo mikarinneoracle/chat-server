@@ -1,6 +1,6 @@
 var WebSocketServer = require('ws').Server;
 
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 3332;
 
 var wss = new WebSocketServer({ port: port});
 
