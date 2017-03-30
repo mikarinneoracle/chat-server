@@ -10,10 +10,25 @@ wss.on('connection', function (ws) {
     ws.send(message);
   });
   ws.on('message', function (message) {
-    messages.push(message);
+    var exists = false;
+    messages.forEach(function(messages){
+      if(messages == message)
+      {
+        exists = true;
+      }
+    });
+    if(!exists)
+    {
+        messages.push(message);
+    } else {
+        console.log('Msg exists ' + message);
+    }
     console.log('Message Received: %s', message);
     wss.clients.forEach(function (conn) {
-      conn.send(message);
+      if(!exists)
+      {
+        conn.send(message);
+      }
     });
   });
 });
