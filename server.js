@@ -1,10 +1,30 @@
 var WebSocketServer = require('ws').Server;
+var MongoClient = require('mongodb').MongoClient;
+var mongodb_host = process.env.BACKEND_MONGODB_HOST || null;
 
 var port = process.env.PORT || 3332;
-
 var wss = new WebSocketServer({ port: port});
 
+var mongodb;
 var messages = [];
+if(mongodb_host)
+{
+  MongoClient.connect('mongodb://' + mongodb_host + '/messages', function(err, db) {
+    if(err)
+    {
+      console.log(err);
+    } else {
+      mongodb = db;
+      var collection = mongodb.collection('messages');
+      collection.find().toArray(function(err, m) {
+        m.forEach(function(message){
+          messages.push('{"user":"' + message.user+'","text":"'+message.text + '"}');
+        });
+      });
+    }
+  });
+}
+
 wss.on('connection', function (ws) {
   messages.forEach(function(message){
     ws.send(message);
@@ -20,6 +40,16 @@ wss.on('connection', function (ws) {
     if(!exists)
     {
         messages.push(message);
+        if(mongodb)
+        {
+          var collection = mongodb.collection('messages');
+          collection.insert(JSON.parse(message), function(err, r) {
+            if(err)
+            {
+                console.log(err);
+            }
+          });
+        }
     } else {
         console.log('Msg exists ' + message);
     }
